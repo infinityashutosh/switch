@@ -1,12 +1,21 @@
 <!DOCTYPE html>
 <html>
   <head>
-    <link rel="stylesheet" href="popup.css">
+    <style>
+      body {
+        min-width: 200px;
+        text-align: center;
+      }
+      button {
+        margin-top: 10px;
+      }
+    </style>
   </head>
   <body>
-    <h3>Browser Window Live Stream</h3>
-    <button id="startStream">Start Stream</button>
-    <button id="stopStream" disabled>Stop Stream</button>
-    <!-- <script src="popup.js"></script> -->
+    <h3>Desktop Capture Demo</h3>
+    <button id="captureDesktop">Capture Desktop</button>
+    <button id="stopCapture" disabled>Stop Capture</button>
+    <video id="desktopVideo" width="640" height="480" autoplay></video>
+    <script src="popup.js"></script>
   </body>
 </html>

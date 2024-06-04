@@ -1,17 +1,48 @@
-document.getElementById('startStream').addEventListener('click', () => {
-    chrome.runtime.sendMessage({ action: 'startStream' });
-  });
-  
-  document.getElementById('stopStream').addEventListener('click', () => {
-    chrome.runtime.sendMessage({ action: 'stopStream' });
-  });
-  
-  chrome.runtime.onMessage.addListener(message => {
-    if (message.action === 'streamStarted') {
-      document.getElementById('startStream').disabled = true;
-      document.getElementById('stopStream').disabled = false;
-    } else if (message.action === 'streamStopped') {
-      document.getElementById('startStream').disabled = false;
-      document.getElementById('stopStream').disabled = true;
+let desktopStream;
+const video = document.getElementById('desktopVideo');
+
+const captureDesktopButton = document.getElementById('captureDesktop');
+const stopCaptureButton = document.getElementById('stopCapture');
+
+captureDesktopButton.addEventListener('click', captureDesktop);
+stopCaptureButton.addEventListener('click', stopCapture);
+
+function captureDesktop() {
+  chrome.desktopCapture.chooseDesktopMedia(
+    ['screen', 'window'],
+    (streamId) => {
+      if (streamId) {
+        navigator.mediaDevices.getUserMedia({
+          audio: false,
+          video: {
+            mandatory: {
+              chromeMediaSource: 'desktop',
+              chromeMediaSourceId: streamId,
+            },
+          },
+        })
+        .then((stream) => {
+          desktopStream = stream;
+          video.srcObject = stream;
+          captureDesktopButton.disabled = true;
+          stopCaptureButton.disabled = false;
+        })
+        .catch((error) => {
+          console.error('Error capturing desktop stream:', error);
+        });
+      } else {
+        console.error('User canceled desktop capture.');
+      }
     }
-  });
+  );
+}
+
+function stopCapture() {
+  if (desktopStream) {
+    desktopStream.getTracks().forEach((track) => track.stop());
+    desktopStream = null;
+    video.srcObject = null;
+    captureDesktopButton.disabled = false;
+    stopCaptureButton.disabled = true;
+  }
+}
